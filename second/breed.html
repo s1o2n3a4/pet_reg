@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Quicksand:wght@300;400;500;600;700&display=swap' rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-image: url('bg2.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .container {
+      margin: 50px auto; /* Centered horizontally */
+      background-color: rgba(224, 190, 222, 0.4);
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      border-radius: 20px;
+      
+    
+      padding-left: 10px;
+      padding-right:30px;
+      height: 445px;
+      width: 900px;
+    }
+
+    .breed-selector {
+      margin: 20px auto; /* Centered horizontally */
+      display: flex;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 10px ;
+      font-size: 25px;
+      width: 900px; 
+      border-radius: 10px;
+      background-color: rgba(224, 190, 222, 0.4);
+   
+    }
+
+    label {
+      margin-right: 10px; /* Add some space between label and select */
+    }
+    
+    select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex: 1; /* Allow the select element to grow and fill available space */
+    }
+
+    .random {
+      background-color: rgb(224, 190, 222);
+      font-size: 50px;
+      margin-bottom: 40px;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
+
+    .breed-name {
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .breed-details {
+      display: flex;
+    
+    }
+
+    .breed-info {
+      flex: 1;
+      padding: 20px;
+      text-align: left;
+      font-size: 20px;
+    }
+
+    .breed-image {
+      flex: 1;
+      margin-top: 20px;
+      border-radius: 100px;
+    }
+
+    .breed-description {
+      text-align: left;
+      margin-top: 10px;
+      font-family: 'Quicksand', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="random">Explore Random Cat Breeds</div>
+  <div class="breed-selector">
+    <label for="breed-select">Select a Breed:</label>
+    <select id="breed-select"></select>
+  </div>
+  <div class="container">
+    <div class="breed-details">
+      <div class="breed-info">
+        <h2 class="breed-name"><strong>Breed Name:</strong></h2>
+        <p class="breed-description"></p>
+      </div>
+      <div class="breed-image">
+        <img class="cat-image" src="" alt="Cat Image" width="500" height="400">
+      </div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const breedSelect = document.getElementById('breed-select');
+    const breedName = document.querySelector('.breed-name');
+    const breedDescription = document.querySelector('.breed-description');
+    const catImage = document.querySelector('.cat-image');
+
+    async function fetchBreeds() {
+      try {
+        const response = await axios.get('https://api.thecatapi.com/v1/breeds/');
+        const breeds = response.data;
+        populateBreedOptions(breeds);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function populateBreedOptions(breeds) {
+      breeds.forEach(breed => {
+        const option = document.createElement('option');
+        option.value = breed.id;
+        option.textContent = breed.name;
+        breedSelect.appendChild(option);
+      });
+      breedSelect.addEventListener('change', fetchBreedDetails);
+      fetchBreedDetails();
+    }
+
+    async function fetchBreedDetails() {
+      const breedId = breedSelect.value;
+      try {
+        const response = await axios.get(`https://api.thecatapi.com/v1/breeds/${breedId}`);
+        const breed = response.data;
+        updateBreedInfo(breed);
+        fetchBreedImage(breed.id);
+        
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateBreedInfo(breed) {
+      breedName.textContent = breed.name;
+      breedDescription.textContent = breed.description;
+    }
+
+    async function fetchBreedImage(breedId) {
+      try {
+        const response = await axios.get(`https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=1`);
+        const image = response.data[0];
+        catImage.src = image.url;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchBreeds();
+  </script>
+</body>
+</html>
+     

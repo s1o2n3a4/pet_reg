@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+    body {
+        font-family: 'Quicksand', sans-serif;
+        margin: 0; padding: 0;
+        box-sizing: border-box;
+      background-image: url('bg2.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+
+    .image-container {
+      text-align: center;
+      margin-bottom: 40px;
+      margin-top: 20px;
+    }
+
+    .image {
+      max-width: 100%;
+      height: auto;
+    }
+    .vote-buttons {
+      margin: 10px 0;
+    
+    }
+
+    .vote-button {
+      background-color: rgb(224, 190, 222);
+      font-size: 25px;
+      font-weight:bold;
+      padding: 10px 20px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    
+    }
+
+    .vote-button:hover {
+      background-color: #446d9a; /* Change the background color on hover */
+    }
+
+    .vote-heading {
+      background-color: rgb(224, 190, 222);
+      font-size: 50px;
+      margin-bottom: 20px;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      text-align: center;
+      
+    }
+
+    
+    </style>
+</head>
+<body>
+  
+    <div class="vote-heading">Vote Your Favourite</div>
+    <div class="container">
+    <div class="image-container">
+      <img class="image" id="breedImage" src="" alt="Breed Image">
+    </div>
+    <div class="vote-buttons">
+      <button class="vote-button" id="voteUpButton">Love it</button>
+      <button class="vote-button" id="voteDownButton">Nope </button>
+    </div>
+  </div>
+
+  <script>
+    const breedImage = document.getElementById('breedImage');
+    const voteUpButton = document.getElementById('voteUpButton');
+    const voteDownButton = document.getElementById('voteDownButton');
+
+    async function getImage() {
+      try {
+        const response = await fetch('https://api.thecatapi.com/v1/images/search', { params: { limit: 1, size: 'full' } });
+        const [image] = await response.json();
+        breedImage.src = image.url;
+      } catch (error) {
+        console.error('Error fetching image:', error);
+      }
+    }
+
+    async function vote(value) {
+      try {
+        const body = {
+          image_id: breedImage.src,
+          sub_id: 'User-123',
+          value: value,
+        };
+        const response = await fetch('https://api.thecatapi.com/v1/votes', {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'YOUR-API-KEY',
+          },
+        });
+        await getImage();
+      } catch (error) {
+        console.error('Error voting:', error);
+      }
+    }
+
+    voteUpButton.addEventListener('click', () => vote(1));
+    voteDownButton.addEventListener('click', () => vote(0));
+
+    getImage();
+  </script>
+</body>
+</html>
